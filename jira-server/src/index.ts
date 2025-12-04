@@ -99,10 +99,19 @@ class JiraClient {
     
     if (!this.clients.has(instanceKey)) {
       const config = this.instances.get(instanceKey)!;
-      const baseUrl = config.url.replace(/\/$/, "");
+      let baseUrl = config.url.replace(/\/$/, "");
+      
+      // Handle Atlassian Cloud URLs that include /jira path
+      if (baseUrl.includes('atlassian.net')) {
+        // For Atlassian Cloud, the API is at the root, not under /jira
+        baseUrl = baseUrl.replace(/\/jira.*$/, '');
+      }
+      
+      // Determine API version: v3 for Atlassian Cloud, v2 for self-hosted
+      const apiVersion = baseUrl.includes('atlassian.net') ? '3' : '2';
       
       this.clients.set(instanceKey, axios.create({
-        baseURL: `${baseUrl}/rest/api/3`,
+        baseURL: `${baseUrl}/rest/api/${apiVersion}`,
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -113,7 +122,7 @@ class JiraClient {
         },
       }));
       
-      console.error(`[Setup] Created client for instance: ${instanceKey}`);
+      console.error(`[Setup] Created client for instance: ${instanceKey} at ${baseUrl}/rest/api/${apiVersion}`);
     }
     
     return this.clients.get(instanceKey)!;
