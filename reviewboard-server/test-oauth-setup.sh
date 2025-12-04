@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Test script for OAuth2 setup
+# This script demonstrates how to run the OAuth setup
+
+echo "=== ReviewBoard OAuth2 Setup Test ==="
+echo ""
+echo "This script will guide you through testing the OAuth2 setup."
+echo ""
+echo "Prerequisites:"
+echo "1. You must have created an OAuth2 application in ReviewBoard"
+echo "2. You need the Client ID and Client Secret from that application"
+echo "3. The redirect URI must be set to http://localhost:3000/callback (or your custom port)"
+echo ""
+echo "To run the OAuth setup, execute:"
+echo ""
+echo "  export REVIEWBOARD_URL=\"https://your-reviewboard-instance.com\""
+echo "  export REVIEWBOARD_CLIENT_ID=\"your-client-id\""
+echo "  export REVIEWBOARD_CLIENT_SECRET=\"your-client-secret\""
+echo "  # Optional: export OAUTH_CALLBACK_PORT=\"3000\""
+echo "  npm run oauth-setup"
+echo ""
+echo "The setup script will:"
+echo "1. Start a local callback server on port 3000 (or your custom port)"
+echo "2. Display an authorization URL"
+echo "3. Wait for you to authorize in your browser"
+echo "4. Exchange the authorization code for tokens"
+echo "5. Save the configuration to oauth-config.json"
+echo ""
+echo "After successful setup, you can start using the MCP server!"
+echo ""

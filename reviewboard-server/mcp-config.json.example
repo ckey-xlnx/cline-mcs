@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "reviewboard": {
+      "command": "node",
+      "args": ["/path/to/reviewboard-server/build/index.js"],
+      "env": {
+        "REVIEWBOARD_URL": "https://your-reviewboard-instance.com",
+        "REVIEWBOARD_TOKEN": "your_api_token_here"
+      },
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}

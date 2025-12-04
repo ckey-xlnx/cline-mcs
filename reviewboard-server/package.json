@@ -1,0 +1,29 @@
+{
+  "name": "reviewboard-server",
+  "version": "2.0.0",
+  "type": "module",
+  "main": "build/index.js",
+  "bin": {
+    "reviewboard-server": "build/index.js",
+    "reviewboard-oauth-setup": "build/oauth-setup.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "oauth-setup": "node build/oauth-setup.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "MCP server for ReviewBoard API integration",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.24.3",
+    "axios": "^1.13.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,26 @@
+# Cline storage
+.cline_storage/
+
+# IDE files
+*.code-workspace
+.vscode/
+.idea/
+
+# Node modules
+node_modules/
+
+# Build output
+build/
+dist/
+
+# Config files with secrets
+mcp-config.json
+oauth-config.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
