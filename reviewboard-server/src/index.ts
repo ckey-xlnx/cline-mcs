@@ -391,6 +391,36 @@ class ReviewBoardClient {
     }
   }
 
+  async postReviewReply(reviewRequestId: number, reviewId: number, data: {
+    bodyTop?: string;
+    bodyBottom?: string;
+    public?: boolean;
+  }): Promise<Review> {
+    console.error(`[API] Posting reply to review ${reviewId}`);
+    
+    try {
+      const formData = new URLSearchParams();
+      if (data.bodyTop !== undefined) formData.append('body_top', data.bodyTop);
+      if (data.bodyBottom !== undefined) formData.append('body_bottom', data.bodyBottom);
+      if (data.public !== undefined) formData.append('public', String(data.public));
+
+      const response = await this.client.post(
+        `/review-requests/${reviewRequestId}/reviews/${reviewId}/replies/`,
+        formData.toString(),
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        }
+      );
+      console.error(`[API] Successfully posted reply`);
+      return response.data.reply;
+    } catch (error: any) {
+      console.error(`[Error] Failed to post reply:`, error.message);
+      throw new Error(`Failed to post reply: ${error.message}`);
+    }
+  }
+
   async searchReviewRequests(query: string): Promise<ReviewRequestsResponse> {
     console.error(`[API] Searching review requests with query: ${query}`);
     
@@ -606,6 +636,36 @@ const tools: Tool[] = [
     },
   },
   {
+    name: "post_review_reply",
+    description: "Post a reply to an existing review",
+    inputSchema: {
+      type: "object",
+      properties: {
+        review_request_id: {
+          type: "number",
+          description: "The review request ID",
+        },
+        review_id: {
+          type: "number",
+          description: "The review ID to reply to",
+        },
+        body_top: {
+          type: "string",
+          description: "Reply text to appear above comments",
+        },
+        body_bottom: {
+          type: "string",
+          description: "Reply text to appear below comments",
+        },
+        public: {
+          type: "boolean",
+          description: "Whether to publish the reply immediately (default: false)",
+        },
+      },
+      required: ["review_request_id", "review_id"],
+    },
+  },
+  {
     name: "search_review_requests",
     description: "Search for review requests using a text query",
     inputSchema: {
@@ -756,6 +816,28 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           shipIt: args.ship_it,
           public: args.public,
         });
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "post_review_reply": {
+        const args = request.params.arguments as any;
+        const result = await client.postReviewReply(
+          args.review_request_id,
+          args.review_id,
+          {
+            bodyTop: args.body_top,
+            bodyBottom: args.body_bottom,
+            public: args.public,
+          }
+        );
 
         return {
           content: [
