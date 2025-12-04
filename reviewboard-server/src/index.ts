@@ -344,6 +344,21 @@ class ReviewBoardClient {
     }
   }
 
+  async getReviewReplies(reviewRequestId: number, reviewId: number): Promise<Review[]> {
+    console.error(`[API] Fetching replies for review ${reviewId}`);
+    
+    try {
+      const response = await this.client.get(
+        `/review-requests/${reviewRequestId}/reviews/${reviewId}/replies/`
+      );
+      console.error(`[API] Successfully fetched ${response.data.replies.length} replies`);
+      return response.data.replies;
+    } catch (error: any) {
+      console.error(`[Error] Failed to fetch review replies:`, error.message);
+      throw new Error(`Failed to fetch review replies: ${error.message}`);
+    }
+  }
+
   async postReview(reviewRequestId: number, data: {
     bodyTop?: string;
     bodyBottom?: string;
@@ -543,6 +558,24 @@ const tools: Tool[] = [
     },
   },
   {
+    name: "get_review_replies",
+    description: "Get all replies to a specific review",
+    inputSchema: {
+      type: "object",
+      properties: {
+        review_request_id: {
+          type: "number",
+          description: "The review request ID",
+        },
+        review_id: {
+          type: "number",
+          description: "The review ID",
+        },
+      },
+      required: ["review_request_id", "review_id"],
+    },
+  },
+  {
     name: "post_review",
     description: "Post a review to a review request",
     inputSchema: {
@@ -684,6 +717,23 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "get_review_comments": {
         const args = request.params.arguments as any;
         const result = await client.getReviewComments(
+          args.review_request_id,
+          args.review_id
+        );
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "get_review_replies": {
+        const args = request.params.arguments as any;
+        const result = await client.getReviewReplies(
           args.review_request_id,
           args.review_id
         );
