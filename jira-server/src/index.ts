@@ -202,8 +202,8 @@ const tools: Tool[] = [
       properties: {
         instance: {
           type: "string",
-          description: "The Jira instance name (amd, ontrack, or pensando)",
-          enum: ["amd", "ontrack", "pensando"],
+          description: "The Jira instance name (amd, ontrack-internal, ontrack-external, or pensando)",
+          enum: ["amd", "ontrack-internal", "ontrack-external", "pensando"],
         },
         issue_key: {
           type: "string",
@@ -221,8 +221,8 @@ const tools: Tool[] = [
       properties: {
         instance: {
           type: "string",
-          description: "The Jira instance name (amd, ontrack, or pensando)",
-          enum: ["amd", "ontrack", "pensando"],
+          description: "The Jira instance name (amd, ontrack-internal, ontrack-external, or pensando)",
+          enum: ["amd", "ontrack-internal", "ontrack-external", "pensando"],
         },
         jql: {
           type: "string",
