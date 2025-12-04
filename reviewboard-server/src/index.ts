@@ -353,15 +353,20 @@ class ReviewBoardClient {
     console.error(`[API] Posting review to review request ${reviewRequestId}`);
     
     try {
-      const payload: any = {};
-      if (data.bodyTop) payload.body_top = data.bodyTop;
-      if (data.bodyBottom) payload.body_bottom = data.bodyBottom;
-      if (data.shipIt !== undefined) payload.ship_it = data.shipIt;
-      if (data.public !== undefined) payload.public = data.public;
+      const formData = new URLSearchParams();
+      if (data.bodyTop !== undefined) formData.append('body_top', data.bodyTop);
+      if (data.bodyBottom !== undefined) formData.append('body_bottom', data.bodyBottom);
+      if (data.shipIt !== undefined) formData.append('ship_it', String(data.shipIt));
+      if (data.public !== undefined) formData.append('public', String(data.public));
 
       const response = await this.client.post(
         `/review-requests/${reviewRequestId}/reviews/`,
-        payload
+        formData.toString(),
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        }
       );
       console.error(`[API] Successfully posted review`);
       return response.data.review;
