@@ -171,8 +171,14 @@ Use the get_review_request tool with id=12345
 
 ### Get diff content
 ```
-First use get_review_diffs to get the diff IDs, then use get_diff_content with the review_request_id and diff_id
+First use get_review_diffs to get the diff list, then use get_diff_content with the review_request_id and the diff revision number (not the diff ID from the database).
+
+Example:
+1. get_review_diffs returns: [{"id": 62786, "revision": 1, ...}]
+2. Use get_diff_content with review_request_id=29107 and diff_id=1 (the revision, not 62786)
 ```
+
+**Important**: The `diff_id` parameter in `get_diff_content` expects the **revision number** (e.g., 1, 2, 3), not the database ID. The ReviewBoard API uses `/api/review-requests/{id}/diffs/{revision}/` where revision is the sequential diff number.
 
 ### Post a review
 ```
