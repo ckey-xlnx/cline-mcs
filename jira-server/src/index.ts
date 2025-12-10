@@ -151,7 +151,7 @@ class JiraClient {
     
     try {
       const client = this.getClient(instance);
-      const response = await client.post('/search', {
+      const response = await client.post('/search/jql', {
         jql,
         maxResults,
         fields: ['summary', 'status', 'assignee', 'reporter', 'created', 'updated', 'priority', 'issuetype'],
@@ -196,14 +196,13 @@ function getClient(): JiraClient {
 const tools: Tool[] = [
   {
     name: "get_issue",
-    description: "Get detailed information about a specific Jira issue by key (e.g., IFOESW-205). Supports multiple Jira instances.",
+    description: "Get detailed information about a specific Jira issue by key (e.g., IFOESW-205). Supports multiple Jira instances. Instance names are discovered from JIRA_INSTANCE_<NAME>_URL environment variables and should be specified in lowercase.",
     inputSchema: {
       type: "object",
       properties: {
         instance: {
           type: "string",
-          description: "The Jira instance name (amd, ontrack-internal, ontrack-external, or pensando)",
-          enum: ["amd", "ontrack-internal", "ontrack-external", "pensando"],
+          description: "The Jira instance name in lowercase (e.g., amd, ontrack_internal, ontrack_external, pensando). Available instances are determined by JIRA_INSTANCE_<NAME>_URL environment variables.",
         },
         issue_key: {
           type: "string",
@@ -215,14 +214,13 @@ const tools: Tool[] = [
   },
   {
     name: "search_issues",
-    description: "Search for Jira issues using JQL (Jira Query Language). Supports multiple Jira instances.",
+    description: "Search for Jira issues using JQL (Jira Query Language). Supports multiple Jira instances. Instance names are discovered from JIRA_INSTANCE_<NAME>_URL environment variables and should be specified in lowercase.",
     inputSchema: {
       type: "object",
       properties: {
         instance: {
           type: "string",
-          description: "The Jira instance name (amd, ontrack-internal, ontrack-external, or pensando)",
-          enum: ["amd", "ontrack-internal", "ontrack-external", "pensando"],
+          description: "The Jira instance name in lowercase (e.g., amd, ontrack_internal, ontrack_external, pensando). Available instances are determined by JIRA_INSTANCE_<NAME>_URL environment variables.",
         },
         jql: {
           type: "string",
