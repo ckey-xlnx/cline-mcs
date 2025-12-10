@@ -164,6 +164,82 @@ class JiraClient {
     }
   }
 
+  async createIssue(
+    instance: string,
+    project: string,
+    summary: string,
+    description: string,
+    issueType: string = "Task",
+    priority?: string,
+    labels?: string[]
+  ): Promise<JiraIssue> {
+    console.error(`[API] Creating issue in project ${project} on ${instance}`);
+    
+    try {
+      const client = this.getClient(instance);
+      const instanceKey = instance.toLowerCase();
+      const config = this.instances.get(instanceKey)!;
+      const isAtlassianCloud = config.url.includes('atlassian.net');
+      
+      // Format description based on API version
+      let descriptionField;
+      if (isAtlassianCloud) {
+        // API v3 uses Atlassian Document Format (ADF)
+        descriptionField = {
+          type: "doc",
+          version: 1,
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                {
+                  type: "text",
+                  text: description,
+                },
+              ],
+            },
+          ],
+        };
+      } else {
+        // API v2 uses plain text
+        descriptionField = description;
+      }
+      
+      const issueData: any = {
+        fields: {
+          project: {
+            key: project,
+          },
+          summary,
+          description: descriptionField,
+          issuetype: {
+            name: issueType,
+          },
+        },
+      };
+      
+      if (priority) {
+        issueData.fields.priority = { name: priority };
+      }
+      
+      if (labels && labels.length > 0) {
+        issueData.fields.labels = labels;
+      }
+      
+      const response = await client.post('/issue', issueData);
+      console.error(`[API] Successfully created issue ${response.data.key}`);
+      
+      // Fetch the full issue details to return
+      return await this.getIssue(instance, response.data.key);
+    } catch (error: any) {
+      console.error(`[Error] Failed to create issue:`, error.message);
+      if (error.response?.data) {
+        console.error(`[Error] Response data:`, JSON.stringify(error.response.data, null, 2));
+      }
+      throw new Error(`Failed to create issue: ${error.message}`);
+    }
+  }
+
   getAvailableInstances(): string[] {
     return Array.from(this.instances.keys());
   }
@@ -234,6 +310,47 @@ const tools: Tool[] = [
       required: ["instance", "jql"],
     },
   },
+  {
+    name: "create_issue",
+    description: "Create a new Jira issue in a specified project. Supports multiple Jira instances. Instance names are discovered from JIRA_INSTANCE_<NAME>_URL environment variables and should be specified in lowercase.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        instance: {
+          type: "string",
+          description: "The Jira instance name in lowercase (e.g., amd, ontrack_internal, ontrack_external, pensando). Available instances are determined by JIRA_INSTANCE_<NAME>_URL environment variables.",
+        },
+        project: {
+          type: "string",
+          description: "The project key (e.g., IFOESW, FWDEV)",
+        },
+        summary: {
+          type: "string",
+          description: "The issue summary/title",
+        },
+        description: {
+          type: "string",
+          description: "The issue description",
+        },
+        issue_type: {
+          type: "string",
+          description: "The issue type (e.g., Task, Bug, Story). Default: Task",
+        },
+        priority: {
+          type: "string",
+          description: "The priority (e.g., Highest, High, Medium, Low, Lowest). Optional.",
+        },
+        labels: {
+          type: "array",
+          items: {
+            type: "string",
+          },
+          description: "Array of labels to add to the issue. Optional.",
+        },
+      },
+      required: ["instance", "project", "summary", "description"],
+    },
+  },
 ];
 
 // Handle tool listing
@@ -270,6 +387,28 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           args.instance,
           args.jql,
           args.max_results
+        );
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "create_issue": {
+        const args = request.params.arguments as any;
+        const result = await client.createIssue(
+          args.instance,
+          args.project,
+          args.summary,
+          args.description,
+          args.issue_type,
+          args.priority,
+          args.labels
         );
 
         return {
