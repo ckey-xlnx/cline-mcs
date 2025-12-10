@@ -141,8 +141,9 @@ class JiraClient {
       console.error(`[API] Successfully fetched issue ${issueKey}`);
       return response.data;
     } catch (error: any) {
-      console.error(`[Error] Failed to fetch issue ${issueKey}:`, error.message);
-      throw new Error(`Failed to fetch issue ${issueKey}: ${error.message}`);
+      const errorDetails = error.response?.data ? JSON.stringify(error.response.data, null, 2) : error.message;
+      console.error(`[Error] Failed to fetch issue ${issueKey}:`, errorDetails);
+      throw new Error(`Failed to fetch issue ${issueKey}: ${error.message}${error.response?.data ? '\nDetails: ' + JSON.stringify(error.response.data) : ''}`);
     }
   }
 
@@ -159,8 +160,9 @@ class JiraClient {
       console.error(`[API] Search returned ${response.data.issues.length} issues`);
       return response.data;
     } catch (error: any) {
-      console.error(`[Error] Failed to search issues:`, error.message);
-      throw new Error(`Failed to search issues: ${error.message}`);
+      const errorDetails = error.response?.data ? JSON.stringify(error.response.data, null, 2) : error.message;
+      console.error(`[Error] Failed to search issues:`, errorDetails);
+      throw new Error(`Failed to search issues: ${error.message}${error.response?.data ? '\nDetails: ' + JSON.stringify(error.response.data) : ''}`);
     }
   }
 
@@ -232,11 +234,9 @@ class JiraClient {
       // Fetch the full issue details to return
       return await this.getIssue(instance, response.data.key);
     } catch (error: any) {
-      console.error(`[Error] Failed to create issue:`, error.message);
-      if (error.response?.data) {
-        console.error(`[Error] Response data:`, JSON.stringify(error.response.data, null, 2));
-      }
-      throw new Error(`Failed to create issue: ${error.message}`);
+      const errorDetails = error.response?.data ? JSON.stringify(error.response.data, null, 2) : error.message;
+      console.error(`[Error] Failed to create issue:`, errorDetails);
+      throw new Error(`Failed to create issue: ${error.message}${error.response?.data ? '\nDetails: ' + JSON.stringify(error.response.data) : ''}`);
     }
   }
 
