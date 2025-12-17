@@ -1,0 +1,3 @@
+[submodule "mcp-cli-exec"]
+	path = mcp-cli-exec
+	url = https://github.com/jakenuts/mcp-cli-exec.git
